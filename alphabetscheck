@@ -1,0 +1,14 @@
+package programs;
+import java.util.Scanner;
+public class alphabetcheck {
+public static void main(String[] args) {
+	Scanner SC = new
+			Scanner(System.in);
+	System.out.println("enter a character:");
+	char ch=SC.next().charAt(0);
+	if((ch>'a'&& ch<='z')||(ch>='A'&&ch<='Z')) {
+		System.out.println(ch+"is not an alphabet.");
+	}
+	SC.close();
+	}
+}
