@@ -1,0 +1,31 @@
+def calculate_pairs(n, arr):
+    from collections import defaultdict
+    subarrays=defaultdict(list)
+    for i in range(n):
+        curr_sum=0
+        for j in range(i,n):
+            curr_sum+=arr[j]
+            subarrays[curr_sum].append((i,j))
+    count=0
+    for key in subarrays:
+        intervals=subarrays[key]
+        intervals.sort()
+        length=len(intervals)
+        for i in range(length):
+            for j in range(i+1,length):
+                l1,r1=intervals[i]
+                l2,r2=intervals[j]
+                if r1<l2 or r2<l1:
+                    count+=1
+    return count
+def main():
+    import sys
+    input = sys.stdin.read
+    data = input().strip().split()
+    n = int(data[0])  # The first line of input, integer N
+    arr = list(map(int, data[1:n+1]))  # The second line of input, N space-separated integers
+    result = calculate_pairs(n, arr)
+    print(result)
+
+if __name__ == "__main__":
+    main()
