@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <stdlib.h>
+#define MAX_ID 10001
+int main() {
+    int n,m;
+    if(scanf("%d %d",&n,&m)!=2) return 0;
+    int left_counts[MAX_ID]={0};
+    int right_counts[MAX_ID]={0};
+    for(int i=0;i<n;i++){
+      int id;
+      scanf("%d",&id);
+      left_counts[id]++;
+    }
+    for(int i=0;i<m;i++){
+        int id;
+        scanf("%d",&id);
+        right_counts[id]++;
+    }
+    int total_pairs=0;
+    for(int i=0;i<MAX_ID;i++){
+        if(left_counts[i]>0 && right_counts[i]>0){
+            total_pairs+=(left_counts[i]<right_counts[i])?left_counts[i]:right_counts[i];
+        }
+    }
+    printf("%d\n",total_pairs);
+    int printed_count=0;
+    for(int i=0;i<MAX_ID;i++){
+        int pairs_for_id
+=(left_counts[i]<right_counts[i])?left_counts[i]:right_counts[i];    
+            while(pairs_for_id>0){
+                printf("%d",i);
+                printed_count++;
+                if(printed_count<total_pairs)
+                {
+                    printf(" ");
+                }
+                pairs_for_id--;
+            }
+        }
+        printf("\n"); 
+    return 0;
+}
+                      
