@@ -1,0 +1,77 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+
+class RandomizedCollection {
+
+    private final ArrayList<Integer> list;
+    private final Map<Integer, Set<Integer>> map;
+    private final Random rand;
+
+    public RandomizedCollection() {
+        list = new ArrayList<>();
+        map = new HashMap<>();
+        rand = new Random();
+    }
+    
+    public boolean insert(int val) {
+        boolean notPresent = !map.containsKey(val);
+        
+        // Ensure a Set exists for the current value
+        map.computeIfAbsent(val, k -> new LinkedHashSet<>()).add(list.size());
+        list.add(val);
+        
+        return notPresent;
+    }
+    
+    public boolean remove(int val) {
+        if (!map.containsKey(val) || map.get(val).isEmpty()) {
+            return false;
+        }
+        
+        // Get an arbitrary index of 'val' from its set of indices
+        Set<Integer> valIndices = map.get(val);
+        int idxToRemove = valIndices.iterator().next();
+        valIndices.remove(idxToRemove);
+        
+        int lastIdx = list.size() - 1;
+        int lastElement = list.get(lastIdx);
+        
+        // If the element to remove is not the last element, swap it
+        if (idxToRemove < lastIdx) {
+            list.set(idxToRemove, lastElement);
+            
+            // Update the index of the swapped element in the map
+            Set<Integer> lastElementIndices = map.get(lastElement);
+            lastElementIndices.remove(lastIdx);
+            lastElementIndices.add(idxToRemove);
+        }
+        
+        // Remove the final element from our tracking list
+        list.remove(lastIdx);
+        
+        // Clean up the map entry if no occurrences of 'val' remain
+        if (valIndices.isEmpty()) {
+            map.remove(val);
+        }
+        
+        return true;
+    }
+    
+    public int getRandom() {
+        // Since duplicates are appended directly into the array list, 
+        // a uniform random selection naturally honors their frequency weight.
+        return list.get(rand.nextInt(list.size()));
+    }
+}
+
+/**
+ * Your RandomizedCollection object will be instantiated and called as such:
+ * RandomizedCollection obj = new RandomizedCollection();
+ * boolean param_1 = obj.insert(val);
+ * boolean param_2 = obj.remove(val);
+ * int param_3 = obj.getRandom();
+ */
