@@ -1,0 +1,65 @@
+import java.util.TreeMap;
+import java.util.Map;
+
+class SummaryRanges {
+
+    // Map: key = start of interval, value = end of interval
+    private final TreeMap<Integer, Integer> intervals;
+
+    public SummaryRanges() {
+        intervals = new TreeMap<>();
+    }
+    
+    public void addNum(int value) {
+        if (intervals.containsKey(value)) {
+            return;
+        }
+        
+        // Find the closest interval starting <= value
+        Integer l = intervals.floorKey(value);
+        // Find the closest interval starting > value
+        Integer r = intervals.ceilingKey(value);
+        
+        // Case 1: value is already covered by the left interval
+        if (l != null && intervals.get(l) >= value) {
+            return;
+        }
+        
+        boolean connectLeft = (l != null && intervals.get(l) + 1 == value);
+        boolean connectRight = (r != null && r - 1 == value);
+        
+        if (connectLeft && connectRight) {
+            // Case 2: value perfectly bridges the left and right intervals
+            intervals.put(l, intervals.get(r));
+            intervals.remove(r);
+        } else if (connectLeft) {
+            // Case 3: value extends the left interval to the right
+            intervals.put(l, value);
+        } else if (connectRight) {
+            // Case 4: value extends the right interval to the left
+            intervals.put(value, intervals.get(r));
+            intervals.remove(r);
+        } else {
+            // Case 5: value stands alone as a new interval
+            intervals.put(value, value);
+        }
+    }
+    
+    public int[][] getIntervals() {
+        int[][] res = new int[intervals.size()][2];
+        int i = 0;
+        for (Map.Entry<Integer, Integer> entry : intervals.entrySet()) {
+            res[i][0] = entry.getKey();
+            res[i][1] = entry.getValue();
+            i++;
+        }
+        return res;
+    }
+}
+
+/**
+ * Your SummaryRanges object will be instantiated and called as such:
+ * SummaryRanges obj = new SummaryRanges();
+ * obj.addNum(value);
+ * int[][] param_2 = obj.getIntervals();
+ */
