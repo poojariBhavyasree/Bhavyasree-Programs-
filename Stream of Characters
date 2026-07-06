@@ -1,0 +1,57 @@
+class StreamChecker {
+    
+    // Standard Trie Node structure
+    private class TrieNode {
+        TrieNode[] children = new TrieNode[26];
+        boolean isWord = false;
+    }
+    
+    private final TrieNode root;
+    private final StringBuilder streamHistory;
+
+    public StreamChecker(String[] words) {
+        root = new TrieNode();
+        streamHistory = new StringBuilder();
+        
+        // Insert words in reverse order into the Trie
+        for (String word : words) {
+            TrieNode curr = root;
+            for (int i = word.length() - 1; i >= 0; i--) {
+                int index = word.charAt(i) - 'a';
+                if (curr.children[index] == null) {
+                    curr.children[index] = new TrieNode();
+                }
+                curr = curr.children[index];
+            }
+            curr.isWord = true;
+        }
+    }
+    
+    public boolean query(char letter) {
+        streamHistory.append(letter);
+        TrieNode curr = root;
+        
+        // Search backwards from the latest character added
+        for (int i = streamHistory.length() - 1; i >= 0; i--) {
+            int index = streamHistory.charAt(i) - 'a';
+            curr = curr.children[index];
+            
+            // If the path breaks, no matching suffix exists
+            if (curr == null) {
+                return false;
+            }
+            // Found a valid suffix match
+            if (curr.isWord) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+}
+
+/**
+ * Your StreamChecker object will be instantiated and called as such:
+ * StreamChecker obj = new StreamChecker(words);
+ * boolean param_1 = obj.query(letter);
+ */
