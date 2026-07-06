@@ -1,0 +1,127 @@
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+class AllOne {
+
+    // Node representing a frequency bucket
+    private class Bucket {
+        int count;
+        Set<String> keys;
+        Bucket prev;
+        Bucket next;
+
+        Bucket(int count) {
+            this.count = count;
+            this.keys = new HashSet<>();
+        }
+    }
+
+    // Dummy head and tail to easily fetch min/max and avoid edge cases
+    private final Bucket head;
+    private final Bucket tail;
+    private final Map<String, Bucket> keyToBucket;
+
+    public AllOne() {
+        head = new Bucket(0);
+        tail = new Bucket(Integer.MAX_VALUE);
+        head.next = tail;
+        tail.prev = head;
+        keyToBucket = new HashMap<>();
+    }
+    
+    public void inc(String key) {
+        if (keyToBucket.containsKey(key)) {
+            Bucket currBucket = keyToBucket.get(key);
+            Bucket nextBucket = currBucket.next;
+
+            // If the next bucket doesn't match the incremented count, create it
+            if (nextBucket.count != currBucket.count + 1) {
+                nextBucket = addBucketAfter(currBucket, currBucket.count + 1);
+            }
+
+            nextBucket.keys.add(key);
+            keyToBucket.put(key, nextBucket);
+
+            // Clean up the current key from its old bucket
+            currBucket.keys.remove(key);
+            if (currBucket.keys.isEmpty()) {
+                removeBucket(currBucket);
+            }
+        } else {
+            // Key is new, it belongs to the bucket with count 1
+            Bucket firstBucket = head.next;
+            if (firstBucket.count != 1) {
+                firstBucket = addBucketAfter(head, 1);
+            }
+            firstBucket.keys.add(key);
+            keyToBucket.put(key, firstBucket);
+        }
+    }
+    
+    public void dec(String key) {
+        Bucket currBucket = keyToBucket.get(key);
+        
+        if (currBucket.count == 1) {
+            keyToBucket.remove(key);
+        } else {
+            Bucket prevBucket = currBucket.prev;
+
+            // If the previous bucket doesn't match the decremented count, create it
+            if (prevBucket.count != currBucket.count - 1) {
+                prevBucket = addBucketAfter(currBucket.prev, currBucket.count - 1);
+            }
+
+            prevBucket.keys.add(key);
+            keyToBucket.put(key, prevBucket);
+        }
+
+        // Clean up the key from its old bucket
+        currBucket.keys.remove(key);
+        if (currBucket.keys.isEmpty()) {
+            removeBucket(currBucket);
+        }
+    }
+    
+    public String getMaxKey() {
+        // The bucket with the maximal count sits right before the dummy tail
+        if (tail.prev == head) {
+            return "";
+        }
+        return tail.prev.keys.iterator().next();
+    }
+    
+    public String getMinKey() {
+        // The bucket with the minimal count sits right after the dummy head
+        if (head.next == tail) {
+            return "";
+        }
+        return head.next.keys.iterator().next();
+    }
+
+    // Helper: Insert a new frequency bucket node right after 'oldBucket'
+    private Bucket addBucketAfter(Bucket oldBucket, int count) {
+        Bucket newBucket = new Bucket(count);
+        newBucket.next = oldBucket.next;
+        newBucket.prev = oldBucket;
+        oldBucket.next.prev = newBucket;
+        oldBucket.next = newBucket;
+        return newBucket;
+    }
+
+    // Helper: Unlink an empty frequency bucket from the list
+    private void removeBucket(Bucket bucket) {
+        bucket.prev.next = bucket.next;
+        bucket.next.prev = bucket.prev;
+    }
+}
+
+/**
+ * Your AllOne object will be instantiated and called as such:
+ * AllOne obj = new AllOne();
+ * obj.inc(key);
+ * obj.dec(key);
+ * String param_3 = obj.getMaxKey();
+ * String param_4 = obj.getMinKey();
+ */
